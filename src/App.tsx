@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { calculateModifier } from '@shared/domain/calculators/modifiers';
+import { calculateAbilityModifier } from '@shared/domain/calculators/abilities';
 
 /**
  * Componente principal de la aplicación
@@ -16,7 +16,7 @@ function App() {
   // Calcular modificador usando lógica de dominio
   let modifier: number | string;
   try {
-    modifier = calculateModifier(abilityScore);
+    modifier = calculateAbilityModifier(abilityScore);
   } catch (error) {
     modifier = 'Error';
   }

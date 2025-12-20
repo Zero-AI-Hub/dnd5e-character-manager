@@ -1,4 +1,4 @@
-import type { AbilityScore, AbilityModifier } from '@shared/types/character.types';
+import type { AbilityScore, AbilityModifier } from '../../types/character.js';
 
 /**
  * Calcula el modificador de un atributo según las reglas de D&D 5e.
@@ -20,7 +20,7 @@ export function calculateModifier(score: AbilityScore): AbilityModifier {
   if (score < 1 || score > 30) {
     throw new Error(`Invalid ability score: ${score}. Must be between 1 and 30.`);
   }
-  
+
   // Cálculo según reglas D&D 5e
   return Math.floor((score - 10) / 2);
 }

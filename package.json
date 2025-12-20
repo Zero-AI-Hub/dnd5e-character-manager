@@ -2,12 +2,12 @@
   "name": "dnd5e-character-manager",
   "version": "0.1.0",
   "description": "D&D 5e Character Sheet Manager",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:vite": "vite",
-    "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development tsc -p tsconfig.electron.json && electron .",
+    "dev:electron": "wait-on http://localhost:5173 && npx tsc -p tsconfig.electron.json && cross-env NODE_ENV=development VITE_DEV_SERVER_URL=http://localhost:5173 npx electron .",
     "build": "npm run build:renderer && npm run build:electron",
     "build:renderer": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
@@ -15,7 +15,11 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui"
   },
-  "keywords": ["dnd", "character-sheet", "electron"],
+  "keywords": [
+    "dnd",
+    "character-sheet",
+    "electron"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
