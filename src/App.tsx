@@ -5,7 +5,8 @@ import {
   createCharacterFile,
   serializeCharacter,
   deserializeCharacter,
-  updateMetadata
+  updateMetadata,
+  CharacterFile
 } from '@shared/domain/persistence/characterSchema';
 
 /**
@@ -16,7 +17,15 @@ interface AppState {
   filePath: string | null;
   hasUnsavedChanges: boolean;
   isLoading: boolean;
+  error: string | null;
 }
+
+/**
+ * Verifica si estamos en contexto Electron
+ */
+const isElectron = (): boolean => {
+  return typeof window !== 'undefined' && window.api !== undefined;
+};
 
 /**
  * Componente principal de la aplicación
@@ -27,6 +36,7 @@ function App() {
     filePath: null,
     hasUnsavedChanges: false,
     isLoading: true,
+    error: null,
   });
 
   // Inicializar personaje por defecto
@@ -45,6 +55,7 @@ function App() {
       ...prev,
       character,
       hasUnsavedChanges: true,
+      error: null,
     }));
   };
 
@@ -52,6 +63,40 @@ function App() {
   const handleSave = async () => {
     if (!state.character) return;
 
+    // Verificar si estamos en Electron
+    if (!isElectron()) {
+      // Fallback: descargar como archivo en el navegador
+      try {
+        const charFile = createCharacterFile(state.character);
+        charFile.metadata = updateMetadata(charFile.metadata);
+        const json = serializeCharacter(charFile);
+
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${state.character.basics.name || 'personaje'}.dnd5e`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setState(prev => ({
+          ...prev,
+          hasUnsavedChanges: false,
+          error: null,
+        }));
+      } catch (error) {
+        console.error('Error saving character:', error);
+        setState(prev => ({
+          ...prev,
+          error: 'Error al guardar el personaje',
+        }));
+      }
+      return;
+    }
+
+    // En Electron: usar IPC
     try {
       const charFile = createCharacterFile(state.character);
       charFile.metadata = updateMetadata(charFile.metadata);
@@ -64,15 +109,58 @@ function App() {
           ...prev,
           filePath: result.filePath!,
           hasUnsavedChanges: false,
+          error: null,
+        }));
+      } else if (result.error) {
+        setState(prev => ({
+          ...prev,
+          error: result.error || 'Error desconocido',
         }));
       }
     } catch (error) {
       console.error('Error saving character:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'Error al guardar el personaje',
+      }));
     }
   };
 
   // Cargar personaje
   const handleLoad = async () => {
+    // Verificar si estamos en Electron
+    if (!isElectron()) {
+      // Fallback: usar input file en el navegador
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.dnd5e,.json';
+      input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const charFile = deserializeCharacter(text);
+          setState({
+            character: charFile.character,
+            filePath: file.name,
+            hasUnsavedChanges: false,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          console.error('Error loading character:', error);
+          setState(prev => ({
+            ...prev,
+            error: 'Error al cargar el personaje. Archivo inválido.',
+          }));
+        }
+      };
+      input.click();
+      return;
+    }
+
+    // En Electron: usar IPC
     try {
       const result = await window.api.character.load();
 
@@ -83,10 +171,20 @@ function App() {
           filePath: result.filePath || null,
           hasUnsavedChanges: false,
           isLoading: false,
+          error: null,
         });
+      } else if (result.error) {
+        setState(prev => ({
+          ...prev,
+          error: result.error || 'Error desconocido',
+        }));
       }
     } catch (error) {
       console.error('Error loading character:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'Error al cargar el personaje',
+      }));
     }
   };
 
@@ -98,7 +196,13 @@ function App() {
       filePath: null,
       hasUnsavedChanges: false,
       isLoading: false,
+      error: null,
     });
+  };
+
+  // Cerrar error
+  const dismissError = () => {
+    setState(prev => ({ ...prev, error: null }));
   };
 
   if (state.isLoading) {
@@ -131,14 +235,42 @@ function App() {
           <button
             className="btn btn--primary"
             onClick={handleSave}
-            disabled={!state.hasUnsavedChanges && state.filePath !== null}
           >
             💾 Guardar {state.hasUnsavedChanges && '●'}
           </button>
         </div>
 
+        {/* Error message */}
+        {state.error && (
+          <div style={{
+            marginTop: '12px',
+            padding: '12px 16px',
+            background: 'var(--color-accent-red)',
+            borderRadius: '4px',
+            color: 'white',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            <span>{state.error}</span>
+            <button
+              onClick={dismissError}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '1.2rem',
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Status */}
         <p style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+          {!isElectron() && '🌐 Modo navegador | '}
           {state.filePath
             ? `📁 ${state.filePath.split(/[\\/]/).pop()}`
             : '📝 Nuevo personaje sin guardar'}
