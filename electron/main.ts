@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { registerFileHandlers } from './fileHandlers.js';
 
 // ESM compatibility: __dirname is not available in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -62,6 +63,9 @@ function createWindow() {
  * Evento: Electron está listo
  */
 app.whenReady().then(() => {
+  // Registrar handlers IPC para archivos
+  registerFileHandlers();
+
   createWindow();
 
   // En macOS, recrear ventana al hacer click en el dock
