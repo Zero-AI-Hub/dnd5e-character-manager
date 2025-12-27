@@ -7,7 +7,7 @@
  * ════════════════════════════════════════════════════════════
  */
 
-import type { AbilityName } from '../../types/character.js';
+import type { AbilityName } from '../types/character.js';
 
 /**
  * Información de una raza SRD
