@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Character, AbilityName, SkillName } from '@shared/types/character';
 import { SKILL_TO_ABILITY } from '@shared/types/character';
 import { calculateAllAbilityModifiers, formatModifier } from '@shared/domain/calculators/abilities';
@@ -8,6 +8,7 @@ import { calculateAllSavingThrowBonuses, formatSavingThrowBonus } from '@shared/
 import { calculateClassMaxHP } from '@shared/domain/calculators/hitPoints';
 import { createDefaultCharacter } from '@shared/domain/persistence/characterSchema';
 import { SRD_RACES, SRD_CLASSES, SRD_BACKGROUNDS, findClass } from '@shared/data/srdData';
+import { AutocompleteInput } from './AutocompleteInput';
 
 const SKILL_NAMES_ES: Record<SkillName, string> = {
     acrobatics: 'Acrobacias', animalHandling: 'Trato con Animales', arcana: 'Arcano',
@@ -49,6 +50,14 @@ export function CharacterSheet({ character: propCharacter, onCharacterChange }: 
         }
     } catch { /* use default */ }
 
+    // Prepare autocomplete options
+    const classOptions = useMemo(() =>
+        SRD_CLASSES.map(c => ({ id: c.id, label: c.nameEs })), []);
+    const raceOptions = useMemo(() =>
+        SRD_RACES.map(r => ({ id: r.id, label: r.nameEs })), []);
+    const backgroundOptions = useMemo(() =>
+        SRD_BACKGROUNDS.map(b => ({ id: b.id, label: b.nameEs })), []);
+
     const updateAbility = (ability: AbilityName, value: number) => {
         const newCharacter = {
             ...character,
@@ -80,16 +89,6 @@ export function CharacterSheet({ character: propCharacter, onCharacterChange }: 
     const abilityNames: AbilityName[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
     const skillNames: SkillName[] = Object.keys(SKILL_NAMES_ES) as SkillName[];
 
-    const selectStyle: React.CSSProperties = {
-        background: 'var(--color-bg-secondary)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '4px',
-        padding: '4px 8px',
-        color: 'var(--color-text-primary)',
-        width: '130px',
-        fontSize: '0.9rem',
-    };
-
     return (
         <div className="character-sheet">
             {/* Header */}
@@ -109,32 +108,44 @@ export function CharacterSheet({ character: propCharacter, onCharacterChange }: 
                         <div className="basic-info__details">
                             <div className="basic-info__item">
                                 <span className="basic-info__label">Clase</span>
-                                <select value={character.basics.class} onChange={(e) => updateBasics('class', e.target.value)} style={selectStyle}>
-                                    <option value="">Seleccionar...</option>
-                                    {SRD_CLASSES.map(c => <option key={c.id} value={c.id}>{c.nameEs}</option>)}
-                                </select>
+                                <AutocompleteInput
+                                    value={character.basics.class}
+                                    onChange={(val) => updateBasics('class', val)}
+                                    options={classOptions}
+                                    placeholder="Escribe clase..."
+                                />
                             </div>
                             <div className="basic-info__item">
                                 <span className="basic-info__label">Nivel</span>
                                 <input
                                     type="number" min="1" max="20" value={character.basics.level}
                                     onChange={(e) => updateBasics('level', Number(e.target.value))}
-                                    style={{ ...selectStyle, width: '60px', textAlign: 'center' }}
+                                    style={{
+                                        background: 'var(--color-bg-secondary)',
+                                        border: '1px solid var(--color-border)',
+                                        borderRadius: '4px', textAlign: 'center',
+                                        width: '60px', fontSize: '1rem',
+                                        padding: '4px', color: 'var(--color-text-primary)',
+                                    }}
                                 />
                             </div>
                             <div className="basic-info__item">
                                 <span className="basic-info__label">Raza</span>
-                                <select value={character.basics.race} onChange={(e) => updateBasics('race', e.target.value)} style={selectStyle}>
-                                    <option value="">Seleccionar...</option>
-                                    {SRD_RACES.map(r => <option key={r.id} value={r.id}>{r.nameEs}</option>)}
-                                </select>
+                                <AutocompleteInput
+                                    value={character.basics.race}
+                                    onChange={(val) => updateBasics('race', val)}
+                                    options={raceOptions}
+                                    placeholder="Escribe raza..."
+                                />
                             </div>
                             <div className="basic-info__item">
                                 <span className="basic-info__label">Trasfondo</span>
-                                <select value={character.basics.background} onChange={(e) => updateBasics('background', e.target.value)} style={selectStyle}>
-                                    <option value="">Seleccionar...</option>
-                                    {SRD_BACKGROUNDS.map(b => <option key={b.id} value={b.id}>{b.nameEs}</option>)}
-                                </select>
+                                <AutocompleteInput
+                                    value={character.basics.background}
+                                    onChange={(val) => updateBasics('background', val)}
+                                    options={backgroundOptions}
+                                    placeholder="Escribe trasfondo..."
+                                />
                             </div>
                         </div>
                     </div>
