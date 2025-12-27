@@ -1,0 +1,207 @@
+/* ═══════════════════════════════════════════════════════════════
+   Uiverse.io Inspired Elements & Enhancements
+   Theme: Dark Fantasy / Arcane UI
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Magical Buttons (Golden & Arcane) 
+   Inspired by "Game UI" buttons with inner highlights and depth */
+
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transition: 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Primary (Gold/Legendary) */
+.btn--primary {
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+    color: #1a1a2e;
+    border: 1px solid #FFD700;
+    box-shadow:
+        0 4px 15px rgba(255, 215, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn--primary:hover {
+    background: linear-gradient(135deg, #FFE44D 0%, #DAA520 100%);
+    box-shadow:
+        0 6px 20px rgba(255, 215, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Secondary (Blue/Rare) */
+.btn--secondary {
+    background: linear-gradient(135deg, #1f4287 0%, #0f3460 100%);
+    color: #edf2f7;
+    border: 1px solid #1f4287;
+    box-shadow:
+        0 4px 15px rgba(31, 66, 135, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn--secondary:hover {
+    background: linear-gradient(135deg, #274b94 0%, #16213e 100%);
+    box-shadow:
+        0 6px 20px rgba(31, 66, 135, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 2. Obsidian Glass Cards
+   Subtle transparency and border glow */
+
+.card {
+    background: rgba(15, 52, 96, 0.7);
+    /* Variable --color-bg-card with alpha */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow:
+        0 12px 40px 0 rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(233, 196, 106, 0.1);
+    /* Gold tint on hover */
+    border-color: rgba(233, 196, 106, 0.2);
+}
+
+/* 3. Magical Inputs
+   Underline style with expanding focus bar */
+
+input[type="text"],
+input[type="number"],
+select {
+    background: rgba(22, 33, 62, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px 4px 0 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+input:focus,
+select:focus {
+    background: rgba(22, 33, 62, 0.9) !important;
+    border-bottom-color: var(--color-accent-gold) !important;
+    box-shadow: 0 4px 20px -5px rgba(233, 196, 106, 0.2);
+}
+
+/* 4. Ability Score Containers (Rune Stones) */
+
+.ability {
+    background: linear-gradient(145deg, #16213e, #131b2e);
+    box-shadow:
+        5px 5px 10px #0b111f,
+        -5px -5px 10px #21315d;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ability:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        8px 8px 16px #0b111f,
+        -8px -8px 16px #21315d,
+        0 0 15px rgba(233, 196, 106, 0.1);
+    /* Gold glow */
+    border-color: rgba(233, 196, 106, 0.3);
+}
+
+.ability__modifier {
+    background: var(--color-accent-gold);
+    color: #1a1a2e;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    text-shadow: none;
+}
+
+/* 5. Skill Proficiency Toggles (Gems) */
+/* We need to target the visual indicator since it's a div/span in the current React code, 
+   but for now let's style the list items to look interactive */
+
+.skill {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.skill:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.skill--proficient {
+    background: linear-gradient(90deg, rgba(42, 157, 143, 0.1) 0%, transparent 100%);
+    border-left: 3px solid #2a9d8f;
+}
+
+.skill--expertise {
+    background: linear-gradient(90deg, rgba(233, 196, 106, 0.1) 0%, transparent 100%);
+    border-left: 3px solid #e9c46a;
+}
+
+/* 6. Combats Stats (Hexagons or Shields? - sticking to boxes for now but nicer) */
+
+.combat-stat {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.combat-stat::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-accent-gold), transparent);
+    opacity: 0.5;
+}
+
+/* 7. Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f3460;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1f4287;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e9c46a;
+}
